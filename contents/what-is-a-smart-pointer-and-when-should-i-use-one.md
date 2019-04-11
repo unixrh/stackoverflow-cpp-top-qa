@@ -76,7 +76,7 @@ p2->other = p1; // p2 references p1
 为了解决这个问题，Boost 和 C++11 都定义了 `weak_ptr` 来定义弱(不计)引用数的 `shared_ptr`
 
 ----
-### 更新
+#### 更新
 以上回答有些老了，描述了那个时候好的东西，也就是由Boost库提供的智能指针。 从 C++11 开始，标准库提供了足够的智能指针类型，因此你应该尽量使用 `std::unique_str`, `std::shared_ptr` 和 `std::weak_ptr`。
 同时还有 `std::auto_ptr`，它和范围指针非常像，但它有可被复制的危险特性--这也会意外地转换所有权！在最新的标准里，它已经被废弃了，因此不应该使用它，还是使用 `std::unique_ptr` 吧。
 ```c++
@@ -85,3 +85,26 @@ std::auto_ptr<MyObject> p2 = p1; // 对象拷贝，所有权转换
 p2->DoSomething(); // 正常 
 p1->DoSomething(); // 很可能报空指针异常
 ```
+
+### 回答2
+对于现代C++，这里有个简单的答案。
+- 什么是智能指针？
+一种可以被像指针那样使用的类型，但它同时提供自动管理内存的额外特征：当一个智能指针不再被使用时，指针指向的内存就会被释放（更多细节可以看维基百科）。
+- 什么时候应该用智能指针？
+当需要考虑一块内存空间的所有权、分配或者释放时，智能指针可以让你不需要显式地做这些操作。
+- 在
+Here's a simple answer for these days of modern C++:
+
+What is a smart pointer? 
+It's a type whose values can be used like pointers, but which provides the additional feature of automatic memory management: When a smart pointer is no longer in use, the memory it points to is deallocated (see also the more detailed definition on Wikipedia).
+When should I use one? 
+In code which involves tracking the ownership of a piece of memory, allocating or de-allocating; the smart pointer often saves you the need to do these things explicitly.
+But which smart pointer should I use in which of those cases?
+Use std::unique_ptr when you don't intend to hold multiple references to the same object. For example, use it for a pointer to memory which gets allocated on entering some scope and de-allocated on exiting the scope.
+Use std::shared_ptr when you do want to refer to your object from multiple places - and do not want your object to be de-allocated until all these references are themselves gone.
+Use std::weak_ptr when you do want to refer to your object from multiple places - for those references for which it's ok to ignore and deallocate (so they'll just note the object is gone when you try to dereference).
+Don't use the boost:: smart pointers or std::auto_ptr except in special cases which you can read up on if you must.
+Hey, I didn't ask which one to use! 
+Ah, but you really wanted to, admit it.
+So when should I use regular pointers then? 
+Mostly in code that is oblivious to memory ownership. This would typically be in functions which get a pointer from someplace else and do not allocatemor de-allocate, and do not store a copy of the pointer which outlasts their execution.
