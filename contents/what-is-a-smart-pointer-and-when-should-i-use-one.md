@@ -92,19 +92,10 @@ p1->DoSomething(); // 很可能报空指针异常
 一种可以被像指针那样使用的类型，但它同时提供自动管理内存的额外特征：当一个智能指针不再被使用时，指针指向的内存就会被释放（更多细节可以看维基百科）。
 - 什么时候应该用智能指针？
 当需要考虑一块内存空间的所有权、分配或者释放时，智能指针可以让你不需要显式地做这些操作。
-- 在
-Here's a simple answer for these days of modern C++:
-
-What is a smart pointer? 
-It's a type whose values can be used like pointers, but which provides the additional feature of automatic memory management: When a smart pointer is no longer in use, the memory it points to is deallocated (see also the more detailed definition on Wikipedia).
-When should I use one? 
-In code which involves tracking the ownership of a piece of memory, allocating or de-allocating; the smart pointer often saves you the need to do these things explicitly.
-But which smart pointer should I use in which of those cases?
-Use std::unique_ptr when you don't intend to hold multiple references to the same object. For example, use it for a pointer to memory which gets allocated on entering some scope and de-allocated on exiting the scope.
-Use std::shared_ptr when you do want to refer to your object from multiple places - and do not want your object to be de-allocated until all these references are themselves gone.
-Use std::weak_ptr when you do want to refer to your object from multiple places - for those references for which it's ok to ignore and deallocate (so they'll just note the object is gone when you try to dereference).
-Don't use the boost:: smart pointers or std::auto_ptr except in special cases which you can read up on if you must.
-Hey, I didn't ask which one to use! 
-Ah, but you really wanted to, admit it.
-So when should I use regular pointers then? 
-Mostly in code that is oblivious to memory ownership. This would typically be in functions which get a pointer from someplace else and do not allocatemor de-allocate, and do not store a copy of the pointer which outlasts their execution.
+- 在什么场合使用哪种智能指针呢？
+当你对于同一个对象不想拥有多个引用时，使用 `std::unique_ptr`。比如，当一块内存空间是在进入某个范围时分配，在离开这个范围时释放，那么可以使用这样的智能指针指向这块内存；
+当你想要在多个地方引用你的对象，并且不想在你的所有引用释放之前对象被释放时，你应该使用 `std::shared_ptr`。
+当你想要在多个地方引用你的对象，但是这些引用可以忽略，对象也可以释放（在试着解引用时自然会发现对象已经销毁）时，使用 `std::weak_ptr`。
+- 除非是特殊场景，否则不用使用 `boost::` 智能指针或者 `std::auto_ptr`。
+- 何时使用常规指针？
+大多数情况是代码对于内存没有所有权，典型函数中，使用别处传过来指针，别分配也别注销，并且不要在其执行范围以外存储指针副本。
