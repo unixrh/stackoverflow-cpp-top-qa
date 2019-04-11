@@ -24,7 +24,7 @@ ptr->DoSomething(); // Use the object in some way.
 // 对象的销毁依赖于智能指针的策略。
 // 即便  DoSomething()抛出异常，依然可以正常释放对象
 ```
-使用的最简单的策略与智能指针相关对象的作用域有关，比如`boost::scoped_ptr` 或者 `std::unique_ptr` 的实现
+使用的最简单的策略与智能指针所指对象的作用域有关，比如`boost::scoped_ptr` 或者 `std::unique_ptr` 的实现
 ```c++
 void f()
 {
