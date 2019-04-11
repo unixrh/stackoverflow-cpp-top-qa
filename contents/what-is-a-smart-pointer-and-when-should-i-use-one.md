@@ -74,6 +74,7 @@ p2->other = p1; // p2 references p1
 // p1 和 p2 的引用计数永远不会为0，两者对象也永远不会被销毁
 ```
 为了解决这个问题，Boost 和 C++11 都定义了 `weak_ptr` 来定义弱(不计)引用数的 `shared_ptr`
+
 ----
 ### 更新
 以上回答有些老了，描述了那个时候好的东西，也就是由Boost库提供的智能指针。 从 C++11 开始，标准库提供了足够的智能指针类型，因此你应该尽量使用 `std::unique_str`, `std::shared_ptr` 和 `std::weak_ptr`。
