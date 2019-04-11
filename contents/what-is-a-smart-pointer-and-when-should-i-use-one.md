@@ -33,7 +33,7 @@ void f()
        ptr->DoSomethingUseful();
     } // boost::scopted_ptr 离开作用域后，MyObject对象会自动被销毁
 
-    // ptr->Oops(); // 编译错误：`ptr`未定义已经在其作用于之外了
+    // ptr->Oops(); // 编译错误：`ptr`未定义，它已经在其作用域之外了
 }
 ```
 注意 `scoped_ptr` 实例不能被拷贝，这是为了避免指针被错误地多次释放。但是你可以通过引用将它传递给你调用的函数。
