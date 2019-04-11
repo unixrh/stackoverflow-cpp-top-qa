@@ -54,4 +54,23 @@ void f()
 } // p1 销毁，对象剩余0个引用 
   // 对象被销毁
 ```
-        
+引用计数的指针，在对象的生命周期更复杂的时候非常有用，并且它没有直接地绑定在特定的代码段或者另一个对象。
+引用计数指针有个弊端 - 可能产生悬挂引用：
+```c++
+// 在堆中创建智能指针
+MyObjectPtr* pp = new MyObjectPtr(new MyObject())
+// 由于我们没有释放智能指针，这个对象也就不会被销毁。
+```
+Another possibility is creating circular references:
+```c++
+struct Owner {
+   boost::shared_ptr<Owner> other;
+};
+boost::shared_ptr<Owner> p1 (new Owner());
+boost::shared_ptr<Owner> p2 (new Owner());
+p1->other = p2; // p1 references p2
+p2->other = p1; // p2 references p1
+
+// p1 和 p2 的引用计数永远不会为0，两者对象也永远不会被销毁
+```
+为了解决这个问题，Boost 和 C++11 都定义了 `weak_ptr` 来定义弱(不计)引用数的 `shared_ptr`
