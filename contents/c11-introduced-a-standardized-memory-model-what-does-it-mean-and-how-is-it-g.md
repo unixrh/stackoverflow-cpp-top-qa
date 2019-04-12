@@ -39,3 +39,53 @@ Thread 1            Thread 2
 x = 17;             cout << y << " ";
 y = 37;             cout << x << endl;
 ```
+`Thread2` 可能输出什么呢？
+
+在C++98/C++03标准下，这甚至不是未定义的行为，这问题本身就毫无意义，因为标准不知道什么是thread。
+
+在C++11标准下，这个结果就是未定义的行为。因为通常加载和存储不是原子性的，这看起来并不像是个改进项。事实也确实如此。
+
+但有了C++11，你可以这样写：
+```C++11
+           Global
+           atomic<int> x, y;
+
+Thread 1                 Thread 2
+x.store(17);             cout << y.load() << " ";
+y.store(37);             cout << x.load() << endl;
+```
+这下事情变得有意思多了。首先，这里的行为都是有定义的，Thread2可以打印出`0 0`（如果它在Thead1之前运行的话），`37 17`（如果它在Thread1之后运行），或者`0 17`（如果它在Thread1赋值给x之后，在赋值给y之前）。
+
+但它无法打印出`37 0`，因为C++11默认的原子性载入/存储强制顺序一致性。也就是说好像是按照你在各个线程中写的代码顺序执行，实际上包含有线程间交错执行。因此默认的原子性为载入和存储同时提供了原子性和有序性。
+
+如今的现代CPU，要保证顺序一致性的开销很大。特别是，编译器可能会在每次访问内存之间发出完整的内存屏障。但如果你的算法可以容忍载入/存储的无序性，也就是说它要求原子性但不要求有序性，比如它可以允许输出`37 0`，你可以这样写：
+```C++
+           Global
+           atomic<int> x, y;
+
+Thread 1                            Thread 2
+x.store(17,memory_order_relaxed);   cout << y.load(memory_order_relaxed) << " ";
+y.store(37,memory_order_relaxed);   cout << x.load(memory_order_relaxed) << endl;
+```
+越是现代化的CPU，这个示例越可以比之前的示例更快。
+
+最后，如果你需要保证特定的载入/存储有序，你可以这样写：
+```c++
+           Global
+           atomic<int> x, y;
+
+Thread 1                            Thread 2
+x.store(17,memory_order_release);   cout << y.load(memory_order_acquire) << " ";
+y.store(37,memory_order_release);   cout << x.load(memory_order_acquire) << endl;
+```
+这就又回到了有序的载入/存储，因此`37 0`也就不再可能出现，但它以最小的开销实现了这一点。
+（在这个简单的例子中，结果与完整的顺序一致性相同;在较大的程序中则不行。）
+
+当然，如果您想要查看的唯一输出是`0 0`或`37 17`，则可以为原始代码包装互斥锁。
+但是如果你已经读到这里了，我打赌你已经知道它确实可行，这个答案已经比我预想的要长:-)。
+
+互斥量很棒，C++11已经将其标准化了。但有时出于性能原因，你需要较低级别的原语（比如经典的[双重检查锁定模式](http://www.justsoftwaresolutions.co.uk/threading/multithreading-in-c++0x-part-6-double-checked-locking.html)）。新标准提供了高级别的小工具，比如互斥锁和条件变量，它同时还提供了低级别的小工具，比如原子类型和各种内存屏障。因此你完全可以使用标准指定的语言编写复杂的高性能并发程序，并且可以确定你的代码将在今天的系统和未来的系统上编译和运行。
+
+然而坦白说，除非你一个研究底层代码的专家，你要做的应该是使用互斥锁和条件变量，我就会这么干。
+
+关于这方面更多的信息，参考[这篇博文](http://bartoszmilewski.wordpress.com/2008/12/01/c-atomics-and-memory-ordering/)。
