@@ -1,0 +1,1 @@
+## [`static_cast`, `dynamic_cast`, `const_cast`和`reinterpret_cast`分别应该用在什么场合？](https://stackoverflow.com/questions/332030/when-should-static-cast-dynamic-cast-const-cast-and-reinterpret-cast-be-used)
