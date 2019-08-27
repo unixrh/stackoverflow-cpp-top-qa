@@ -12,13 +12,13 @@ class string
     char* data;
 
 public:
-
     string(const char* p)
     {
         size_t size = strlen(p) + 1;
         data = new char[size];
         memcpy(data, p, size);
     }
+};
 ```
 既然我们选择了自己管理内存，那么我们必须遵循[三个原则](http://en.wikipedia.org/wiki/Rule_of_three_%28C++_programming%29)。我先不编写赋值运算符，现在只实现析构函数和复制构造函数：
 ```c++
