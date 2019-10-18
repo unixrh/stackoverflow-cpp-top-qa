@@ -60,7 +60,7 @@ void f()
 MyObjectPtr* pp = new MyObjectPtr(new MyObject())
 // 由于我们没有释放智能指针，这个对象也就不会被销毁。
 ```
-Another possibility is creating circular references:
+亦有可能产生循环引用的问题:
 ```c++
 struct Owner {
    boost::shared_ptr<Owner> other;
@@ -79,7 +79,7 @@ p2->other = p1; // p2 references p1
 以上回答有些老了，描述了那个时候好的东西，也就是由Boost库提供的智能指针。 从 C++11 开始，标准库提供了足够的智能指针类型，因此你应该尽量使用 `std::unique_str`, `std::shared_ptr` 和 `std::weak_ptr`。
 同时还有 `std::auto_ptr`，它和范围指针非常像，但它有可被复制的危险特性--这也会意外地转换所有权！在最新的标准里，它已经被废弃了，因此不应该使用它，还是使用 `std::unique_ptr` 吧。
 ```c++
-std::auto_ptr<MyObject> p1 (new MyObject());
+std::auto_ptr<MyObject> p1(new MyObject());
 std::auto_ptr<MyObject> p2 = p1; // 对象拷贝，所有权转换
 p2->DoSomething(); // 正常 
 p1->DoSomething(); // 很可能报空指针异常
